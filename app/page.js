@@ -24,9 +24,7 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Generation failed");
-      }
+      if (!res.ok) throw new Error(data.error || "Failed");
 
       setImage(data.image);
     } catch (err) {
@@ -34,6 +32,17 @@ export default function Home() {
     }
 
     setLoading(false);
+  }
+
+  function downloadImage() {
+    if (!image) return;
+
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = "ai-image.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   return (
@@ -56,20 +65,23 @@ export default function Home() {
 
       <br /><br />
 
-      {error && (
-        <p style={{ color: "red" }}>
-          ❌ {error}
-        </p>
-      )}
+      {error && <p style={{ color: "red" }}>❌ {error}</p>}
 
       {image && (
         <div>
           <h3>Result:</h3>
+
           <img
             src={image}
             alt="AI generated"
             style={{ width: "100%", borderRadius: 10 }}
           />
+
+          <br /><br />
+
+          <button onClick={downloadImage}>
+            ⬇ Download Image
+          </button>
         </div>
       )}
     </main>
