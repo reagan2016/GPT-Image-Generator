@@ -7,4 +7,6 @@ sorry I couldn't do a better model most better models
 required API keys but I have to pay for each image/
 second of a video, I didn't want to pay so we are doing
 Stable Diffusion 1.0, thank you for reading this
-README.md.
+README.md. That was why the domain was sora-video-
+generator.vercel.app in the first place anyway, and
+yes I used Vercel for this.
