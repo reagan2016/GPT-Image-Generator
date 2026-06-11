@@ -7,33 +7,41 @@ export default function Home() {
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
   const [enhanced, setEnhanced] = useState("");
+  const [error, setError] = useState("");
 
   async function generate() {
     setLoading(true);
+    setError("");
     setImage("");
 
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setImage(data.image);
-    setEnhanced(data.enhancedPrompt);
+      if (!res.ok) throw new Error(data.error);
+
+      setImage(data.image);
+      setEnhanced(data.enhancedPrompt);
+    } catch (err) {
+      setError(err.message);
+    }
 
     setLoading(false);
   }
 
   return (
     <main style={{ padding: 20, fontFamily: "Arial" }}>
-      <h1>🆓 AI Image Generator (No API Key)</h1>
+      <h1>🆓 AI Image Generator</h1>
 
       <textarea
         rows={5}
         style={{ width: "100%" }}
-        placeholder="Describe your image..."
+        placeholder="Type something..."
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
       />
@@ -46,11 +54,11 @@ export default function Home() {
 
       <br /><br />
 
-      {enhanced && (
-        <p>
-          🧠 Enhanced Prompt: {enhanced}
-        </p>
-      )}
+      {error && <p style={{ color: "red" }}>❌ {error}</p>}
+
+      {enhanced && <p>🧠 {enhanced}</p>}
+
+      {loading && <p>⏳ Thinking / generating image...</p>}
 
       {image && (
         <img
