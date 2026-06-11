@@ -9,33 +9,12 @@ export async function POST(req) {
       );
     }
 
-    // 🧠 1. FREE PROMPT ENHANCER (no API key)
-    const enhanceRes = await fetch(
-      "https://api-inference.huggingface.co/models/google/flan-t5-base",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          inputs:
-            "Turn this into a detailed cinematic image prompt: " +
-            prompt,
-        }),
-      }
-    );
+    // 🧠 SIMPLE LOCAL PROMPT ENHANCER (always works)
+    const enhancedPrompt =
+      `cinematic, ultra detailed, high quality, 4k, professional lighting, ${prompt}`;
 
-    let enhancedPrompt = prompt;
-
-    try {
-      const result = await enhanceRes.json();
-      if (result?.[0]?.generated_text) {
-        enhancedPrompt = result[0].generated_text;
-      }
-    } catch {}
-
-    // 🎨 2. IMAGE GENERATION (no key)
-    const imageRes = await fetch(
+    // 🎨 Stable Diffusion image generation
+    const res = await fetch(
       "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
       {
         method: "POST",
@@ -48,8 +27,13 @@ export async function POST(req) {
       }
     );
 
-    const blob = await imageRes.blob();
+    if (!res.ok) {
+      throw new Error("Image API failed or is loading");
+    }
+
+    const blob = await res.blob();
     const buffer = await blob.arrayBuffer();
+
     const base64 = Buffer.from(buffer).toString("base64");
 
     return Response.json({
